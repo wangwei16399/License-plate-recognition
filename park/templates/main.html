@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>停车场管理系统</title>
+</head>
+<style type="text/css">
+    #top{
+        position: relative;
+        float: top;
+        width: 100%;
+        height: 100px;
+        background: -webkit-linear-gradient(
+                top,black,darkgray,lightgray,whitesmoke
+        );
+    }
+    #main{
+        width: 40%;
+        margin-left: 10%;
+        height: 580px;
+        {#border: 1px black solid;#}
+        position: relative;
+        float: left;
+    }
+    #result{
+        width: 40%;
+        height: 580px;
+        {#border: 1px black solid;#}
+        margin-right: 10%;
+        position: relative;
+        float: right;
+    }
+    #dbottom{
+        position: fixed;
+        width: 100%;
+        height: 200px;
+        background:  -webkit-linear-gradient(
+                bottom,black,darkgray,lightgray,whitesmoke
+        );
+        background-repeat: no-repeat;
+        float: bottom;
+        bottom: 0;
+     }
+    {##test-file-info{#}
+    {#    float: left;#}
+    {#}#}
+    #test-image-preview {
+        border: 1px solid #ccc;
+        width: 80%;
+        height: 400px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+.file {
+    position: relative;
+    display: inline-block;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+}
+.file input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file button {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+}
+    .file button {
+        position: absolute;
+        font-size: 100px;
+        right: 0;
+        top: 0;
+        opacity: 0;
+    }
+    #res{
+        float: left;
+    }
+    #text1{
+        float: left;
+    }
+
+</style>
+<body>
+<div id="top">
+    <br>
+    <h1 align="center">停车场计费系统</h1>
+</div>
+<div id="main">
+ <form method="post" enctype="multipart/form-data" id="file_upload" action="/parkmanage/getcnum/">
+　　<p> 停车场监控：</p>
+　　<div id="test-image-preview"></div>
+　　<p>
+        <a href="javascript:;" class="file">
+            选择文件
+            <input type="file" id="test-image-file" name="imgfile"
+                   accept="image/gif, image/jpeg, image/png, image/jpg" onclick="clearRes()">
+        </a>
+　　</p>
+{#        <p id="test-file-info"></p>#}
+ </form>
+    <div align="left">
+        <a href="javascript:;" class="file" >识别
+            <button id="testajax" onclick="getPlateNumber()">识别</button>
+        </a>
+    </div>
+
+</div>
+<div id="result">
+    <br>
+    <p id="text1">识别结果：</p><p id="res"></p>
+    <p><br><br></p>
+    <p class="decate">
+        <a href="javascript:;" class="file" onclick="addCar()">计费
+            <button></button>
+        </a>
+        <p id="timeinfo"></p>
+    </p>
+    <p class="decate">
+        <a href="javascript:;" class="file" onclick="checkcar()">结账
+            <button></button>
+        </a>
+        <p id="inplyinfo"></p>
+    </p>
+    <p class="decate">
+        <a href="javascript:;" class="file" onclick="finish()">确认
+            <button></button>
+        </a>
+        <p id="fishinfo"></p>
+    </p>
+
+</div>
+<div id="dbottom">
+
+</div>
+</body>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script>
+    function getPlateNumber() {
+        var formData = new FormData();
+        formData.append('imgfile',$("#test-image-file")[0].files[0]);
+        $.ajax({
+            type:'POST',
+            url:"/parkmanage/getcnum/",
+            cache: false,
+            processData: false,
+            contentType: false ,
+            data:formData,
+            dataType:'html',
+            success:function(data){
+                document.getElementById("res").innerText=data;
+             },
+            error:function(data){
+                alert("请求失败");
+            }
+         })
+    }
+</script>
+<script type="text/javascript">
+　　var
+　　　　fileInput = document.getElementById('test-image-file'),
+       info = document.getElementById('test-file-info'),
+       preview = document.getElementById('test-image-preview');
+       // 监听change事件:
+       fileInput.addEventListener('change', function() {
+       　　// 清除背景图片:
+          preview.style.backgroundImage = '';
+          // 检查文件是否选择:
+          if(!fileInput.value) {
+               info.innerHTML = '没有选择文件';
+                   return;
+          }
+          // 获取File引用:
+          var file = fileInput.files[0];
+          //判断文件大小
+          var size = file.size;
+          if(size >= 2*1024*1024){
+                alert('文件大于2兆不行!');
+                return false;
+          }
+          if(file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
+              alert('不是有效的图片文件!');
+              return;
+          }
+
+           // 读取文件:
+           var reader = new FileReader();
+           reader.onload = function(e) {
+                　　var
+                     　data = e.target.result; // 'data:image/jpeg;base64,/9j/4AAQSk...(base64编码)...}'
+                     　preview.style.backgroundImage = 'url(' + data + ')';
+           };
+           // 以DataURL的形式读取文件:
+           reader.readAsDataURL(file);
+           console.log(file);
+       });
+
+    var cresult = document.getElementById('res');
+
+
+    function clearRes() {
+        cresult.innerHTML = null;
+        document.getElementById("inplyinfo").innerHTML = null;
+        document.getElementById("fishinfo").innerHTML = null;
+    }
+
+    function checkcar() {
+        var xmlhttp;
+	    if (window.XMLHttpRequest) {
+		    // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+		    xmlhttp=new XMLHttpRequest();
+	    }
+	    else {
+		    // IE6, IE5 浏览器执行代码
+		    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	    }
+	    xmlhttp.onreadystatechange=function() {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                document.getElementById("inplyinfo").innerHTML=xmlhttp.responseText;
+            }
+        };
+        xmlhttp.open("GET","/parkmanage/caraccount/?cnum="+cresult.innerText,true);
+        xmlhttp.send();
+    }
+    
+    function addCar() {
+        var xmlhttp;
+	    if (window.XMLHttpRequest) {
+		    // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+		    xmlhttp=new XMLHttpRequest();
+	    }
+	    else {
+		    // IE6, IE5 浏览器执行代码
+		    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	    }
+	    xmlhttp.onreadystatechange=function() {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                document.getElementById("inplyinfo").innerHTML=xmlhttp.responseText;
+            }
+        };
+        xmlhttp.open("GET","/parkmanage/caradd/?cnum="+cresult.innerText,true);
+        xmlhttp.send();
+    }
+
+    function finish() {
+        var xmlhttp;
+	    if (window.XMLHttpRequest) {
+		    // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+		    xmlhttp=new XMLHttpRequest();
+	    }
+	    else {
+		    // IE6, IE5 浏览器执行代码
+		    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	    }
+	    xmlhttp.onreadystatechange=function() {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                document.getElementById("fishinfo").innerHTML=xmlhttp.responseText;
+            }
+        };
+        xmlhttp.open("GET","/parkmanage/finish/?cnum="+cresult.innerText,true);
+        xmlhttp.send();
+    }
+</script>
+</html>
